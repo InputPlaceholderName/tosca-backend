@@ -5,6 +5,7 @@ val logback_version: String by project
 val ktor_version: String by project
 val kotlin_version: String by project
 val exposed_version: String by project
+val junit_version: String by project
 
 plugins {
     application
@@ -15,7 +16,6 @@ group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
 application {
-    //mainClassName = "io.ktor.server.netty.EngineMain"
     mainClassName = "com.github.inputplaceholdername.tosca.ApplicationKt"
 }
 
@@ -28,12 +28,21 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("org.jetbrains.exposed:exposed:$exposed_version")
+    implementation("org.jetbrains.exposed", "exposed-core", exposed_version)
+    implementation("org.jetbrains.exposed", "exposed-dao", exposed_version)
+    implementation("org.jetbrains.exposed", "exposed-jdbc", exposed_version)
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("io.ktor:ktor-jackson:$ktor_version")
     implementation("org.flywaydb:flyway-core:7.9.1")
     implementation("com.zaxxer:HikariCP:4.0.3")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_version")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junit_version")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junit_version")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junit_version")
+    testImplementation("org.testcontainers:testcontainers:1.15.3")
+    testImplementation("org.testcontainers:postgresql:1.15.3")
+    testImplementation("org.testcontainers:junit-jupiter:1.15.3")
 }
 
 kotlin.sourceSets["main"].kotlin.srcDirs("src")

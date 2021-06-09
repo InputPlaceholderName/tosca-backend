@@ -1,6 +1,6 @@
 CREATE TABLE users (
-    id INT GENERATED ALWAYS AS IDENTITY,
-    name TEXT,
-    age INT,
+    id TEXT,
+    first_name TEXT,
+    last_name TEXT,
     PRIMARY KEY (id)
 )

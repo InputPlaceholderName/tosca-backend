@@ -1,5 +1,6 @@
 package com.github.inputplaceholdername.tosca
 
+import com.github.inputplaceholdername.tosca.db.UserDAO
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
@@ -10,29 +11,9 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
-import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.random.Random
-
-object Users : IntIdTable() {
-    val name = text("name")
-    val age = integer("age")
-}
-
-class UserDAO(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<UserDAO>(Users)
-
-    var name by Users.name
-    var age by Users.age
-
-    fun toModel() = User(id.value, name, age)
-}
-
-class User(val id: Int, val name: String, val age: Int)
 
 fun configureDB () {
     val config = HikariConfig().apply {
@@ -64,12 +45,6 @@ fun main(args: Array<String>) {
             }
 
             post("/users") {
-                transaction {
-                    UserDAO.new {
-                        name = "User ${Random.nextInt()}"
-                        age = Random.nextInt(10, 44)
-                    }
-                }
             }
         }
     }.start(wait = true)
