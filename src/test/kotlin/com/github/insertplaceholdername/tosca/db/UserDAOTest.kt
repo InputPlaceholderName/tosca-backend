@@ -12,7 +12,7 @@ class MyPostgreSQLContainer(imageName: String) : PostgreSQLContainer<MyPostgreSQ
 @Testcontainers
 internal class UserDAOTest {
     @Container
-    val postgresContainer = MyPostgreSQLContainer("postgres:12.3")
+    val postgresContainer = MyPostgreSQLContainer("postgres:13.3")
         .withDatabaseName("db")
         .withUsername("user")
         .withPassword("password")
