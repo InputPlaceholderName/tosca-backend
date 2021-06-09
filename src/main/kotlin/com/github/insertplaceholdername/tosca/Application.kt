@@ -1,6 +1,6 @@
-package com.github.inputplaceholdername.tosca
+package com.github.insertplaceholdername.tosca
 
-import com.github.inputplaceholdername.tosca.db.UserDAO
+import com.github.insertplaceholdername.tosca.db.UserDAO
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
@@ -13,7 +13,6 @@ import io.ktor.server.netty.*
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.random.Random
 
 fun configureDB () {
     val config = HikariConfig().apply {

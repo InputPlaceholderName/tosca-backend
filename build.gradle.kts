@@ -1,6 +1,4 @@
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 val logback_version: String by project
 val ktor_version: String by project
 val kotlin_version: String by project
@@ -9,18 +7,13 @@ val junit_version: String by project
 
 plugins {
     application
-    kotlin("jvm") version "1.4.32"
+    kotlin("jvm") version "1.5.10"
 }
 
-group = "com.example"
-version = "0.0.1-SNAPSHOT"
-
-application {
-    mainClassName = "com.github.inputplaceholdername.tosca.ApplicationKt"
-}
+group = "me.klasa"
+version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
@@ -39,14 +32,12 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_version")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junit_version")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junit_version")
-    testImplementation("org.junit.jupiter:junit-jupiter:$junit_version")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
     testImplementation("org.testcontainers:testcontainers:1.15.3")
     testImplementation("org.testcontainers:postgresql:1.15.3")
     testImplementation("org.testcontainers:junit-jupiter:1.15.3")
 }
 
-kotlin.sourceSets["main"].kotlin.srcDirs("src")
-kotlin.sourceSets["test"].kotlin.srcDirs("test")
-
-sourceSets["main"].resources.srcDirs("resources")
-sourceSets["test"].resources.srcDirs("testresources")
+tasks.withType<KotlinCompile>() {
+    kotlinOptions.jvmTarget = "11"
+}

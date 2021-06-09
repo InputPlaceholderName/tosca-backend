@@ -1,4 +1,4 @@
-package com.github.inputplaceholdername.tosca.db
+package com.github.insertplaceholdername.tosca.db
 
 import org.jetbrains.exposed.dao.*
 import org.jetbrains.exposed.dao.id.EntityID

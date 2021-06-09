@@ -1,8 +1,8 @@
-package com.github.inputplaceholdername.tosca.db
+package com.github.insertplaceholdername.tosca.db
 
-import org.junit.jupiter.api.Assertions.*
+
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.Test
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -12,7 +12,7 @@ class MyPostgreSQLContainer(imageName: String) : PostgreSQLContainer<MyPostgreSQ
 @Testcontainers
 internal class UserDAOTest {
     @Container
-    val postgresContainer = MyPostgreSQLContainer("postgres:13.3")
+    val postgresContainer = MyPostgreSQLContainer("postgres:12.3")
         .withDatabaseName("db")
         .withUsername("user")
         .withPassword("password")
@@ -22,7 +22,7 @@ internal class UserDAOTest {
     }
 
     @Test
-    internal fun containerTest() {
+    fun containerTest() {
         postgresContainer.start()
     }
 }
