@@ -36,7 +36,7 @@ class User(val id: Int, val name: String, val age: Int)
 
 fun configureDB () {
     val config = HikariConfig().apply {
-        jdbcUrl = "jdbc:postgresql://localhost:5432/postgres"
+        jdbcUrl = "jdbc:postgresql://${System.getenv("DB_HOST") ?: "localhost"}:5432/postgres"
         driverClassName = "org.postgresql.Driver"
         username = "postgres"
         password = "test123test"

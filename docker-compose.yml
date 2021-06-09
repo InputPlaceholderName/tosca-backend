@@ -10,8 +10,12 @@ services:
         volumes:
             - ./pgdata:/var/lib/postgresql/data
     tosca-backend:
-        image: openjdk:11
+        build: .
+        ports:
+            - 8080:8080
         env_file: .env
-        volumes:
-            - .:/app
+        environment:
+            DB_HOST: tosca-database
+        depends_on:
+            - tosca-database
 
