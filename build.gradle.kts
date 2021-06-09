@@ -15,7 +15,8 @@ group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
 application {
-    mainClassName = "io.ktor.server.netty.EngineMain"
+    //mainClassName = "io.ktor.server.netty.EngineMain"
+    mainClassName = "com.github.inputplaceholdername.tosca.ApplicationKt"
 }
 
 repositories {
