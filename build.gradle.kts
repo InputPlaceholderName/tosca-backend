@@ -31,6 +31,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:7.9.1")
     implementation("com.zaxxer:HikariCP:4.0.3")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_version")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junit_version")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junit_version")
