@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 val logback_version: String by project
 val ktor_version: String by project
 val kotlin_version: String by project
@@ -37,6 +39,13 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:1.15.3")
     testImplementation("org.testcontainers:junit-jupiter:1.15.3")
 }
+
+tasks.withType<Test>() {
+    this.testLogging {
+        this.events = setOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+    }
+}
+
 
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
