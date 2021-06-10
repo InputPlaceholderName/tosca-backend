@@ -3,8 +3,6 @@ package com.github.insertplaceholdername.tosca
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.jackson.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -29,9 +27,7 @@ fun configureDB () {
 fun main() {
     configureDB()
     embeddedServer(Netty, 8080) {
-        install(ContentNegotiation) {
-            jackson()
-        }
+
         routing {
             users(ExposedUserRepository)
         }
