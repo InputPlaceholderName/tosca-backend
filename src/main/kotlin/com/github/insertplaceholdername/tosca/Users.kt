@@ -1,12 +1,15 @@
 package com.github.insertplaceholdername.tosca
 
-import com.github.insertplaceholdername.tosca.db.UserDAO
 import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import org.jetbrains.exposed.sql.transactions.transaction
+import io.ktor.serialization.*
 
 fun Application.users(userRepository: UserRepository) {
+    install(ContentNegotiation) {
+        json()
+    }
     routing {
         get("/users") {
             val users = userRepository.allUsers()

@@ -27,13 +27,11 @@ fun configureDB () {
 fun main() {
     configureDB()
     embeddedServer(Netty, 8080) {
-
         routing {
             users(ExposedUserRepository)
         }
     }.start(wait = true)
 }
-
 
 @Suppress("unused") // Referenced in application.conf
 @JvmOverloads

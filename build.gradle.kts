@@ -10,6 +10,7 @@ val junit_version: String by project
 plugins {
     application
     kotlin("jvm") version "1.5.10"
+    kotlin("plugin.serialization") version "1.5.0"
 }
 
 group = "me.klasa"
@@ -28,7 +29,7 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-jdbc", exposed_version)
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("org.flywaydb:flyway-core:7.9.1")
-    implementation("io.ktor:ktor-client-serialization:$ktor_version")
+    implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("com.zaxxer:HikariCP:4.0.3")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
@@ -47,7 +48,10 @@ tasks.withType<Test>() {
     }
 }
 
-
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
+}
+
+application {
+    mainClass.set("com.github.insertplaceholdername.tosca.ApplicationKt")
 }
