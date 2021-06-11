@@ -8,7 +8,7 @@ import org.junit.rules.ExternalResource
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 
-object PostgresContainer: ExternalResource() {
+object PostgresContainer : ExternalResource() {
     class MyPostgreSQLContainer(imageName: String) : PostgreSQLContainer<MyPostgreSQLContainer>(imageName)
 
     @Container

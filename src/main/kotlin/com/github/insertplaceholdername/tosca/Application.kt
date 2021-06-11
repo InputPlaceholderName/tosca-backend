@@ -2,14 +2,14 @@ package com.github.insertplaceholdername.tosca
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.application.*
-import io.ktor.routing.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.application.Application
+import io.ktor.routing.routing
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
-fun configureDB () {
+fun configureDB() {
     val config = HikariConfig().apply {
         jdbcUrl = "jdbc:postgresql://${System.getenv("DB_HOST") ?: "localhost"}:5432/postgres"
         driverClassName = "org.postgresql.Driver"

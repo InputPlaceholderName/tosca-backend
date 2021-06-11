@@ -5,7 +5,7 @@ import com.github.insertplaceholdername.tosca.db.UserDAO
 import org.jetbrains.exposed.sql.transactions.transaction
 
 interface UserRepository {
-   fun allUsers() : List<User> = listOf()
+    fun allUsers(): List<User> = listOf()
 }
 
 object ExposedUserRepository : UserRepository {

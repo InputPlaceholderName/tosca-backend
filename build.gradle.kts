@@ -1,5 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val logback_version: String by project
 val ktor_version: String by project
@@ -31,6 +31,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core:7.9.1")
     implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("com.zaxxer:HikariCP:4.0.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_version")

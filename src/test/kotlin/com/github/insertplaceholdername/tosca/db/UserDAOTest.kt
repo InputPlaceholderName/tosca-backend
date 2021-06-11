@@ -2,9 +2,9 @@ package com.github.insertplaceholdername.tosca.db
 
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.Before
-import org.junit.Test
 import org.junit.ClassRule
-import kotlin.test.assertEquals
+import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
 
 internal class UserDAOTest {
     companion object {
@@ -26,11 +26,13 @@ internal class UserDAOTest {
 
     @Test
     fun addUser() {
-        transaction { UserDAO.new {
-            userId="Test"
-            firstName="Adam"
-            lastName="Svensson"
-        }}
+        transaction {
+            UserDAO.new {
+                userId = "Test"
+                firstName = "Adam"
+                lastName = "Svensson"
+            }
+        }
         val users = transaction { UserDAO.all().toList() }
         assertEquals(1, users.size)
     }

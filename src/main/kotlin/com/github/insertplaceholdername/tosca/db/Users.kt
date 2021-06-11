@@ -1,7 +1,8 @@
 package com.github.insertplaceholdername.tosca.db
 
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.IntIdTable
 
@@ -17,7 +18,7 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
     var userId by Users.userId
     var firstName by Users.firstName
     var lastName by Users.lastName
-    fun toModel() = User(id=id.value, userId=userId, firstName=firstName, lastName=lastName)
+    fun toModel() = User(id = id.value, userId = userId, firstName = firstName, lastName = lastName)
 }
 
 @Serializable
