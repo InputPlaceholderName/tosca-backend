@@ -15,7 +15,7 @@ object Workspaces : IntIdTable() {
 class WorkspaceDAO(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<WorkspaceDAO>(Workspaces)
 
-    var creator by UserDAO optionalReferencedOn  Workspaces.creator
+    var creator by UserDAO optionalReferencedOn Workspaces.creator
     var name by Workspaces.name
     var info by Workspaces.info
 
