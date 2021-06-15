@@ -18,8 +18,13 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
     var userId by Users.userId
     var firstName by Users.firstName
     var lastName by Users.lastName
+
     fun toModel() = User(id = id.value, userId = userId, firstName = firstName, lastName = lastName)
 }
 
 @Serializable
-data class User(val id: Int, val userId: String, val firstName: String, val lastName: String)
+data class User(val id: Int, val userId: String, val firstName: String, val lastName: String) {
+    companion object {
+        fun unknown() = User(-1, "Unknown", "Unknown", "Unknown")
+    }
+}
