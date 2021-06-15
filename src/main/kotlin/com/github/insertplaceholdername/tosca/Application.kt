@@ -4,13 +4,11 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.routing.routing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
 fun configureDB() {
-    val config = if(!System.getenv("JDBC_DATABASE_URL").isNullOrEmpty()) {
+    val config = if (!System.getenv("JDBC_DATABASE_URL").isNullOrEmpty()) {
         HikariConfig().apply {
             jdbcUrl = System.getenv("JDBC_DATABASE_URL")
             maximumPoolSize = 10
