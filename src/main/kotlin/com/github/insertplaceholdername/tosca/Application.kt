@@ -10,12 +10,19 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
 fun configureDB() {
-    val config = HikariConfig().apply {
-        jdbcUrl = "jdbc:postgresql://${System.getenv("DB_HOST") ?: "localhost"}:5432/postgres"
-        driverClassName = "org.postgresql.Driver"
-        username = "postgres"
-        password = "test123test"
-        maximumPoolSize = 10
+    val config = if(!System.getenv("JDBC_DATABASE_URL").isNullOrEmpty()) {
+        HikariConfig().apply {
+            jdbcUrl = System.getenv("JDBC_DATABASE_URL")
+            maximumPoolSize = 10
+        }
+    } else {
+        HikariConfig().apply {
+            jdbcUrl = "jdbc:postgresql://${System.getenv("POSTGRES_HOST")}:5432/postgres"
+            driverClassName = "org.postgresql.Driver"
+            username = System.getenv("POSTGRES_USERNAME")
+            password = System.getenv("POSTGRES_PASSWORD")
+            maximumPoolSize = 10
+        }
     }
 
     val dataSource = HikariDataSource(config)
@@ -24,16 +31,11 @@ fun configureDB() {
     Database.connect(dataSource)
 }
 
-fun main() {
-    configureDB()
-    embeddedServer(Netty, 8080) {
-        routing {
-            users(ExposedUserRepository)
-        }
-    }.start(wait = true)
-}
+fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
-@Suppress("unused") // Referenced in application.conf
-@JvmOverloads
 fun Application.module(testing: Boolean = false) {
+    configureDB()
+    routing {
+        users(ExposedUserRepository)
+    }
 }

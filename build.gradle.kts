@@ -15,6 +15,7 @@ plugins {
 
 group = "me.klasa"
 version = "1.0-SNAPSHOT"
+val main = "com.github.insertplaceholdername.tosca.ApplicationKt"
 
 repositories {
     mavenCentral()
@@ -53,6 +54,18 @@ tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = main
+    }
+
+    from(sourceSets.main.get().output)
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+}
+
 application {
-    mainClass.set("com.github.insertplaceholdername.tosca.ApplicationKt")
+    mainClass.set(main)
 }

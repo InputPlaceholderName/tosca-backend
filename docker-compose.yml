@@ -15,7 +15,7 @@ services:
             - 8080:8080
         env_file: .env
         environment:
-            DB_HOST: tosca-database
+            POSTGRES_HOST: tosca-database
         depends_on:
             - tosca-database
 
