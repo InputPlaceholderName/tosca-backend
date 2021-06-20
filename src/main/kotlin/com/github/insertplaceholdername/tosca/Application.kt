@@ -1,6 +1,8 @@
 package com.github.insertplaceholdername.tosca
 
+import com.github.insertplaceholdername.tosca.oidc.JwtConfig
 import com.github.insertplaceholdername.tosca.oidc.accessTokenVerifier
+import com.github.insertplaceholdername.tosca.oidc.createJwt
 import com.github.insertplaceholdername.tosca.oidc.idTokenVerifier
 import com.github.insertplaceholdername.tosca.oidc.setupAuth
 import com.zaxxer.hikari.HikariConfig
@@ -10,6 +12,7 @@ import io.ktor.application.call
 import io.ktor.auth.OAuthAccessTokenResponse
 import io.ktor.auth.authenticate
 import io.ktor.auth.authentication
+import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.response.respond
 import io.ktor.response.respondRedirect
 import io.ktor.routing.get
@@ -48,7 +51,7 @@ fun Application.module(testing: Boolean = false) {
     val idTokenVerifier = idTokenVerifier()
 
     routing {
-        authenticate {
+        authenticate("oidc") {
             get("/login") {
                 call.respondRedirect("/")
             }
@@ -61,8 +64,15 @@ fun Application.module(testing: Boolean = false) {
                 val lastName = idToken.claims["lastName"] ?: "Unknown"
                 val groups = idToken.claims["groups"] ?: "none"
                 val id = idToken.claims["id"] ?: "unknown"
-                call.respond(mapOf("firstName" to firstName, "lastName" to lastName, "groups" to groups.toString(), "id" to id))
 
+                call.respond(mapOf("auth_key" to createJwt(id as String)))
+            }
+
+        }
+        authenticate("jwt") {
+            get("/secret") {
+                val principal = call.authentication.principal<JWTPrincipal>()
+                call.respond("Welcome, ${principal?.get(JwtConfig.claimKey)}")
             }
         }
         get("/logout") {

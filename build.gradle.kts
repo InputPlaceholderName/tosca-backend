@@ -34,6 +34,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:4.0.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
     implementation("io.ktor:ktor-auth:$ktor_version")
+    implementation("io.ktor:ktor-auth-jwt:$ktor_version")
     implementation("com.okta.jwt:okta-jwt-verifier:0.5.1")
     implementation("com.okta.jwt:okta-jwt-verifier-impl:0.5.1")
     implementation("io.ktor:ktor-client-apache:$ktor_version")
