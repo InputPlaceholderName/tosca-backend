@@ -17,6 +17,9 @@ internal class UsersEndpointsTest {
         withTestApplication({
             users(object : UserRepository {
                 override fun allUsers() = listOf(user)
+                override fun storeUser(userId: String, firstName: String, lastName: String) {
+
+                }
             })
         }) {
             with(handleRequest(HttpMethod.Get, "/users")) {

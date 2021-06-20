@@ -1,20 +1,15 @@
 package com.github.insertplaceholdername.tosca
 
-import com.github.insertplaceholdername.tosca.oidc.JwtConfig
-import com.github.insertplaceholdername.tosca.oidc.accessTokenVerifier
-import com.github.insertplaceholdername.tosca.oidc.createJwt
-import com.github.insertplaceholdername.tosca.oidc.idTokenVerifier
-import com.github.insertplaceholdername.tosca.oidc.setupAuth
+import com.github.insertplaceholdername.tosca.auth.Groups
+import com.github.insertplaceholdername.tosca.auth.JwtAuthorization
+import com.github.insertplaceholdername.tosca.auth.setupAuth
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.application.call
-import io.ktor.auth.OAuthAccessTokenResponse
 import io.ktor.auth.authenticate
-import io.ktor.auth.authentication
-import io.ktor.auth.jwt.JWTPrincipal
+import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
-import io.ktor.response.respondRedirect
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import org.flywaydb.core.Flyway
@@ -46,37 +41,41 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module(testing: Boolean = false) {
     configureDB()
-    setupAuth()
-    val accessTokenVerifier = accessTokenVerifier()
-    val idTokenVerifier = idTokenVerifier()
+    setupAuth(ExposedUserRepository)
 
     routing {
-        authenticate("oidc") {
-            get("/login") {
-                call.respondRedirect("/")
-            }
-            get("/authorization-code/callback") {
-                val principal = call.authentication.principal<OAuthAccessTokenResponse.OAuth2>() ?: throw Exception("No principal was given")
-                val accessToken = accessTokenVerifier.decode(principal.accessToken)
-                val idTokenString = principal.extraParameters["id_token"] ?: throw Exception("id_token was not returned")
-                val idToken = idTokenVerifier.decode(idTokenString, null)
-                val firstName = idToken.claims["firstName"] ?: "Unknown"
-                val lastName = idToken.claims["lastName"] ?: "Unknown"
-                val groups = idToken.claims["groups"] ?: "none"
-                val id = idToken.claims["id"] ?: "unknown"
 
-                call.respond(mapOf("auth_key" to createJwt(id as String)))
-            }
-
-        }
         authenticate("jwt") {
             get("/secret") {
-                val principal = call.authentication.principal<JWTPrincipal>()
-                call.respond("Welcome, ${principal?.get(JwtConfig.claimKey)}")
+                val user = JwtAuthorization(call).user()
+                call.respond("Welcome $user")
+            }
+
+            get("/everyone") {
+                val auth = JwtAuthorization(call)
+                if (!auth.isAtLeast(Groups.Everyone)) {
+                    call.respond(HttpStatusCode.Unauthorized, "You must be member of Everyone group")
+                }
+                call.respond("Welcome ${auth.user()}")
+            }
+
+            get("/superuser") {
+                val auth = JwtAuthorization(call)
+                if (!auth.isAtLeast(Groups.SuperUser)) {
+                    call.respond(HttpStatusCode.Unauthorized, "You must be member of SuperUser group")
+                }
+                call.respond("Welcome ${auth.user()}")
+            }
+
+            get("/admin") {
+                val auth = JwtAuthorization(call)
+                if (!auth.isAtLeast(Groups.Admin)) {
+                    call.respond(HttpStatusCode.Unauthorized, "You must be member of SuperUser or Admin group")
+                }
+                call.respond("Welcome ${auth.user()}")
             }
         }
         get("/logout") {
-
         }
         users(ExposedUserRepository)
     }

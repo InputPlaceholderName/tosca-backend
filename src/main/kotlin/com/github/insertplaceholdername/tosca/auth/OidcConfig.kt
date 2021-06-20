@@ -1,4 +1,4 @@
-package com.github.insertplaceholdername.tosca.oidc
+package com.github.insertplaceholdername.tosca.auth
 
 import com.typesafe.config.Config
 import io.ktor.auth.OAuthServerSettings
@@ -9,8 +9,9 @@ data class OidcConfig(
     val url: String,
     val clientId: String,
     val clientSecret: String,
-    val audience: String
-    ) {
+    val audience: String,
+    val clientPublicHost: String
+) {
 
     val accessTokenUrl = "$url/v1/token"
     val authorizeUrl = "$url/v1/authorize"
@@ -21,7 +22,8 @@ fun oidcConfigReader(config: Config) = OidcConfig(
     url = config.getString("oidc.url"),
     clientId = config.getString("oidc.clientId"),
     clientSecret = config.getString("oidc.clientSecret"),
-    audience = config.tryGetString("oidc.audience") ?: "api://default"
+    audience = config.tryGetString("oidc.audience") ?: "api://default",
+    clientPublicHost = config.getString("oidc.clientPublicHost")
 )
 
 fun OidcConfig.asOAuth2Config(): OAuthServerSettings.OAuth2ServerSettings =
