@@ -39,4 +39,3 @@ fun OidcConfig.asOAuth2Config(): OAuthServerSettings.OAuth2ServerSettings =
         defaultScopes = listOf("openid"),
         requestMethod = Post
     )
-
