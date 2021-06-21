@@ -2,7 +2,6 @@ package com.github.insertplaceholdername.tosca.auth
 
 import com.typesafe.config.Config
 import io.ktor.auth.OAuthServerSettings
-import io.ktor.config.tryGetString
 import io.ktor.http.HttpMethod.Companion.Post
 
 data class OidcConfig(
@@ -10,21 +9,25 @@ data class OidcConfig(
     val clientId: String,
     val clientSecret: String,
     val audience: String,
-    val clientPublicHost: String
-) {
-
-    val accessTokenUrl = "$url/v1/token"
-    val authorizeUrl = "$url/v1/authorize"
-    val logoutUrl = "$url/v1/logout"
-}
-
-fun oidcConfigReader(config: Config) = OidcConfig(
-    url = config.getString("oidc.url"),
-    clientId = config.getString("oidc.clientId"),
-    clientSecret = config.getString("oidc.clientSecret"),
-    audience = config.tryGetString("oidc.audience") ?: "api://default",
-    clientPublicHost = config.getString("oidc.clientPublicHost")
+    val clientPublicHost: String,
+    val accessTokenUrl: String,
+    val authorizeUrl: String,
+    val logoutUrl: String,
 )
+
+fun oidcConfigReader(config: Config): OidcConfig {
+    val url = config.getString("oidc.url")
+    return OidcConfig(
+        url = url,
+        clientId = config.getString("oidc.clientId"),
+        clientSecret = config.getString("oidc.clientSecret"),
+        audience = config.getString("oidc.audience"),
+        clientPublicHost = config.getString("oidc.clientPublicHost"),
+        accessTokenUrl = "$url${config.getString("oidc.accessTokenUrl")}",
+        authorizeUrl = "$url${config.getString("oidc.authorizeUrl")}",
+        logoutUrl = "$url${config.getString("oidc.logoutUrl")}"
+    )
+}
 
 fun OidcConfig.asOAuth2Config(): OAuthServerSettings.OAuth2ServerSettings =
     OAuthServerSettings.OAuth2ServerSettings(
@@ -36,3 +39,4 @@ fun OidcConfig.asOAuth2Config(): OAuthServerSettings.OAuth2ServerSettings =
         defaultScopes = listOf("openid"),
         requestMethod = Post
     )
+

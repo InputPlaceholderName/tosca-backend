@@ -4,7 +4,7 @@ all:
 
 dev:
 	@printf "Running everything except the Ktor server\n"
-	docker-compose run --service-ports tosca-database
+	docker-compose up tosca-database swagger-ui
 
 test:
 	./gradlew test
