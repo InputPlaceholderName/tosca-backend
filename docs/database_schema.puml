@@ -1,0 +1,101 @@
+@startuml
+object User {
+    id = int 
+    userName = string
+    firstName = string
+    lastName = string
+}
+
+object Role {
+    id = int
+    name = string ( SuperUser | Admin | Normal )
+}
+
+object UserRole {
+    id = int
+    userId = string
+    role = int
+}
+
+object Workspace {
+    id = int
+    name = string
+    information = string 
+    createdAt = DateTime
+    creator = int
+}
+
+object UserWorkspace {
+    id = int
+    user = int
+    workspace = int
+    role = int
+}
+
+object WaitingList {
+    id = int
+    workspace = int
+    title = string  
+    information = string
+}
+
+object WaitingListSchedule {
+    id = int
+    waitingList = int
+    start = DateTime
+    duration = int
+}
+
+object UserWaitingListSchedule {
+    id = int
+    waitingListSchedule = int
+    user = int
+    createdAt = DateTime 
+    message = string
+    answer = string
+}
+
+object Signup {
+    id = int
+    workspace = int
+    information = string
+    maxUserSignups = int
+}
+
+object SignupSlot {
+    id = int
+    information = string
+    maxUsers = int
+    messageEnabled = bool
+}
+
+object UserSignupSlot {
+    id = int
+    user = int
+    signupSlot = int
+    message = string
+}
+
+
+Workspace --> User
+
+UserRole --> Role
+UserRole --> User
+
+UserWorkspace --> User
+UserWorkspace --> Workspace
+UserWorkspace --> Role
+
+WaitingList --> Workspace
+
+WaitingListSchedule --> WaitingList
+
+UserWaitingListSchedule --> User
+UserWaitingListSchedule --> WaitingListSchedule
+
+Signup --> Workspace
+
+SignupSlot --> Signup
+
+UserSignupSlot --> SignupSlot
+@enduml
