@@ -6,17 +6,6 @@ object User {
     lastName = string
 }
 
-object Role {
-    id = int
-    name = string ( SuperUser | Admin | Normal )
-}
-
-object UserRole {
-    id = int
-    userId = string
-    role = int
-}
-
 object Workspace {
     id = int
     name = string
@@ -29,7 +18,7 @@ object UserWorkspace {
     id = int
     user = int
     workspace = int
-    role = int
+    role = string ( Admin | Normal )
 }
 
 object WaitingList {
@@ -79,12 +68,9 @@ object UserSignupSlot {
 
 Workspace --> User
 
-UserRole --> Role
-UserRole --> User
 
 UserWorkspace --> User
 UserWorkspace --> Workspace
-UserWorkspace --> Role
 
 WaitingList --> Workspace
 
@@ -98,4 +84,5 @@ Signup --> Workspace
 SignupSlot --> Signup
 
 UserSignupSlot --> SignupSlot
+
 @enduml
