@@ -15,6 +15,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
+import io.sentry.Sentry
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
@@ -41,11 +42,23 @@ fun configureDB(applicationConfig: Config) {
     Database.connect(dataSource)
 }
 
+fun setupSentry(applicationConfig: Config) {
+    if (applicationConfig.tryGetString("sentry.dsn")?.isNotEmpty() == true) {
+        Sentry.init(applicationConfig.getString("sentry.dsn"))
+        println("Initialized Sentry")
+    } else {
+        println("No Sentry DSN provided")
+    }
+}
+
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 fun Application.module(testing: Boolean = false) {
-    configureDB(ConfigFactory.load() ?: throw Exception("Could not load config"))
+    val config = ConfigFactory.load() ?: throw Exception("Could not load config")
+
+    configureDB(config)
     setupAuth(ExposedUserRepository)
+    setupSentry(config)
 
     routing {
 
