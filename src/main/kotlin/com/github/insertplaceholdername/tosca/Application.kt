@@ -67,20 +67,23 @@ fun Application.module(testing: Boolean = false) {
     if (config.tryGetString("cors.allowedHosts")?.isNotEmpty() == true) {
         val hosts = config.getString("cors.allowedHosts").split(';')
         install(CORS) {
-            allowCredentials = true
-            header(HttpHeaders.Authorization)
-
-            method(HttpMethod.Get)
+            method(HttpMethod.Options)
             method(HttpMethod.Put)
-            method(HttpMethod.Post)
-            method(HttpMethod.Patch)
             method(HttpMethod.Delete)
-            method(HttpMethod.Head)
+            method(HttpMethod.Patch)
+            method(HttpMethod.Get)
+
+            header(HttpHeaders.Authorization)
+            header(HttpHeaders.AccessControlAllowOrigin)
+
+            allowNonSimpleContentTypes = true
 
             for (host in hosts) {
                 host(host, listOf("http", "https"))
             }
         }
+    } else {
+        error("WARNING! No CORS-allowed hosts configured!")
     }
 
     routing {
