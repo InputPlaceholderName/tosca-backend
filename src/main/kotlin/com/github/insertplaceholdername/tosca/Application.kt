@@ -9,8 +9,11 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
 import io.ktor.application.call
+import io.ktor.application.install
 import io.ktor.auth.authenticate
-import io.ktor.config.*
+import io.ktor.config.tryGetString
+import io.ktor.features.CORS
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.get
@@ -59,6 +62,23 @@ fun Application.module(testing: Boolean = false) {
     configureDB(config)
     setupAuth(ExposedUserRepository)
     setupSentry(config)
+
+    if (config.tryGetString("cors.allowedHosts")?.isNotEmpty() == true) {
+        val hosts = config.getString("cors.allowedHosts").split(';')
+        install(CORS) {
+            allowCredentials = true
+            method(HttpMethod.Get)
+            method(HttpMethod.Put)
+            method(HttpMethod.Post)
+            method(HttpMethod.Patch)
+            method(HttpMethod.Delete)
+            method(HttpMethod.Head)
+
+            for (host in hosts) {
+                host(host)
+            }
+        }
+    }
 
     routing {
 
