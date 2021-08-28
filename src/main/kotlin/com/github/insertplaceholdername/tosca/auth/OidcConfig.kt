@@ -13,6 +13,7 @@ data class OidcConfig(
     val accessTokenUrl: String,
     val authorizeUrl: String,
     val logoutUrl: String,
+    val afterLoginRedirectUrl: String,
 )
 
 fun oidcConfigReader(config: Config): OidcConfig {
@@ -25,7 +26,8 @@ fun oidcConfigReader(config: Config): OidcConfig {
         clientPublicHost = config.getString("oidc.clientPublicHost"),
         accessTokenUrl = "$url${config.getString("oidc.accessTokenUrl")}",
         authorizeUrl = "$url${config.getString("oidc.authorizeUrl")}",
-        logoutUrl = "$url${config.getString("oidc.logoutUrl")}"
+        logoutUrl = "$url${config.getString("oidc.logoutUrl")}",
+        afterLoginRedirectUrl = config.getString("oidc.afterLoginRedirectUrl")
     )
 }
 

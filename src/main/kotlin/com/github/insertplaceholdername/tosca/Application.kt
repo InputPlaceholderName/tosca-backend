@@ -13,6 +13,7 @@ import io.ktor.application.install
 import io.ktor.auth.authenticate
 import io.ktor.config.tryGetString
 import io.ktor.features.CORS
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
@@ -67,6 +68,8 @@ fun Application.module(testing: Boolean = false) {
         val hosts = config.getString("cors.allowedHosts").split(';')
         install(CORS) {
             allowCredentials = true
+            header(HttpHeaders.Authorization)
+
             method(HttpMethod.Get)
             method(HttpMethod.Put)
             method(HttpMethod.Post)
@@ -75,7 +78,7 @@ fun Application.module(testing: Boolean = false) {
             method(HttpMethod.Head)
 
             for (host in hosts) {
-                host(host)
+                host(host, listOf("http", "https"))
             }
         }
     }

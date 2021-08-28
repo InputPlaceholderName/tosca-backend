@@ -19,7 +19,6 @@ import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.auth.oauth
 import io.ktor.client.HttpClient
-import io.ktor.response.respond
 import io.ktor.response.respondRedirect
 import io.ktor.routing.get
 import io.ktor.routing.routing
@@ -99,8 +98,7 @@ fun Application.setupAuth(userRepository: UserRepository) {
                 userRepository.storeUser(id as String, firstName as String, lastName as String)
 
                 val jwt = createJwt(ApiUser(id, groups.map { group -> Groups.fromString(group) }))
-
-                call.respond(mapOf("auth_key" to jwt))
+                call.respondRedirect("${Oidc.config.afterLoginRedirectUrl}?tosca_token=$jwt")
             }
         }
     }
