@@ -39,7 +39,8 @@ object UserWaitingListSchedule {
     id = int
     waitingListSchedule = int
     user = int
-    createdAt = DateTime 
+    createdAt = DateTime
+    claimedBy = int
     message = string
     answer = string
 }
