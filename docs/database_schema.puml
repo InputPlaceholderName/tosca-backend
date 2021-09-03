@@ -54,6 +54,7 @@ object Signup {
 
 object SignupSlot {
     id = int
+    signup = int
     information = string
     maxUsers = int
     messageEnabled = bool
@@ -85,5 +86,4 @@ Signup --> Workspace
 SignupSlot --> Signup
 
 UserSignupSlot --> SignupSlot
-
 @enduml

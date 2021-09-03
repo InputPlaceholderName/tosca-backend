@@ -46,4 +46,22 @@ internal class ExposedUserRepositoryTest {
         assertEquals("f2", user.firstName)
         assertEquals("l2", user.lastName)
     }
+
+    @Test
+    fun getUserById() {
+        val id = ExposedUserRepository.storeUser("id1", "f1", "l1").id
+        val user = ExposedUserRepository.getUser(id)
+        assertEquals("id1", user.userId)
+        assertEquals("f1", user.firstName)
+        assertEquals("l1", user.lastName)
+    }
+
+    @Test
+    fun getUserByUserId() {
+        ExposedUserRepository.storeUser("id1", "f1", "l1")
+        val user = ExposedUserRepository.getUser("id1")
+        assertEquals("id1", user.userId)
+        assertEquals("f1", user.firstName)
+        assertEquals("l1", user.lastName)
+    }
 }

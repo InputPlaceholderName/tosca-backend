@@ -1,8 +1,12 @@
 package com.github.insertplaceholdername.tosca
 
-import com.github.insertplaceholdername.tosca.auth.Groups
-import com.github.insertplaceholdername.tosca.auth.JwtAuthorization
+import com.github.insertplaceholdername.tosca.auth.CurrentUser
+import com.github.insertplaceholdername.tosca.auth.Group
+import com.github.insertplaceholdername.tosca.auth.GroupAuthorization
+import com.github.insertplaceholdername.tosca.auth.JwtConfig
 import com.github.insertplaceholdername.tosca.auth.setupAuth
+import com.github.insertplaceholdername.tosca.auth.withAnyGroup
+import com.github.insertplaceholdername.tosca.auth.withGroup
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.zaxxer.hikari.HikariConfig
@@ -11,15 +15,17 @@ import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.authenticate
+import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.config.tryGetString
 import io.ktor.features.CORS
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.sentry.Sentry
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
@@ -86,40 +92,43 @@ fun Application.module(testing: Boolean = false) {
         error("WARNING! No CORS-allowed hosts configured!")
     }
 
+    install(GroupAuthorization) {
+        extractCurrentUser {
+            Json.decodeFromString((it as JWTPrincipal)[JwtConfig.claimKey] ?: throw Exception("Can only be called within authorization block"))
+        }
+    }
+
     routing {
-
         authenticate("jwt") {
-            get("/secret") {
-                val user = JwtAuthorization(call).user()
-                call.respond("Welcome $user")
+            withAnyGroup(Group.Everyone, Group.Admin, Group.SuperUser) {
+                get("/secret") {
+                    val user = call.attributes[CurrentUser]
+                    call.respond("Welcome $user")
+                }
             }
 
-            get("/everyone") {
-                val auth = JwtAuthorization(call)
-                if (!auth.isAtLeast(Groups.Everyone)) {
-                    call.respond(HttpStatusCode.Unauthorized, "You must be member of Everyone group")
+            withGroup(Group.Everyone) {
+                get("/everyone") {
+                    val user = call.attributes[CurrentUser]
+                    call.respond("Welcome $user")
                 }
-                call.respond("Welcome ${auth.user()}")
             }
 
-            get("/superuser") {
-                val auth = JwtAuthorization(call)
-                if (!auth.isAtLeast(Groups.SuperUser)) {
-                    call.respond(HttpStatusCode.Unauthorized, "You must be member of SuperUser group")
+            withGroup(Group.SuperUser) {
+                get("/superuser") {
+                    val user = call.attributes[CurrentUser]
+                    call.respond("Welcome $user")
                 }
-                call.respond("Welcome ${auth.user()}")
             }
 
-            get("/admin") {
-                val auth = JwtAuthorization(call)
-                if (!auth.isAtLeast(Groups.Admin)) {
-                    call.respond(HttpStatusCode.Unauthorized, "You must be member of SuperUser or Admin group")
+            withGroup(Group.Admin) {
+                get("/admin") {
+                    val user = call.attributes[CurrentUser]
+                    call.respond("Welcome $user")
                 }
-                call.respond("Welcome ${auth.user()}")
             }
+
+            users("jwt", ExposedUserRepository)
         }
-        get("/logout") {
-        }
-        users(ExposedUserRepository)
     }
 }

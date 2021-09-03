@@ -8,29 +8,39 @@ import org.jetbrains.exposed.sql.transactions.transaction
 interface UserRepository {
     fun allUsers(): List<User> = listOf()
     fun storeUser(userId: String, firstName: String, lastName: String): User
+    fun getUser(userId: String): User
+    fun getUser(userId: Int): User
 }
 
 object ExposedUserRepository : UserRepository {
     override fun allUsers() = transaction { UserDAO.all().map { user -> user.toModel() }.toList() }
 
-    override fun storeUser(newUserId: String, firstName: String, lastName: String): User {
+    override fun storeUser(userId: String, firstName: String, lastName: String): User {
         return transaction {
-            val existingUser = UserDAO.find { Users.userId eq newUserId }.firstOrNull()
+            UserDAO.find { Users.userId eq userId }.firstOrNull()?.let {
+                it.firstName = firstName
+                it.lastName = lastName
 
-            val user = if (existingUser != null) {
-                existingUser.firstName = firstName
-                existingUser.lastName = lastName
-
-                existingUser
-            } else {
-                UserDAO.new {
-                    this.userId = newUserId
-                    this.firstName = firstName
-                    this.lastName = lastName
-                }
+                return@transaction it.toModel()
             }
 
-            user.toModel()
+            UserDAO.new {
+                this.userId = userId
+                this.firstName = firstName
+                this.lastName = lastName
+            }.toModel()
+        }
+    }
+
+    override fun getUser(userId: String): User {
+        return transaction {
+            UserDAO.find { Users.userId eq userId }.first().toModel()
+        }
+    }
+
+    override fun getUser(userId: Int): User {
+        return transaction {
+            UserDAO.findById(userId)!!.toModel()
         }
     }
 }

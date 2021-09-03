@@ -97,7 +97,7 @@ fun Application.setupAuth(userRepository: UserRepository) {
 
                 userRepository.storeUser(id as String, firstName as String, lastName as String)
 
-                val jwt = createJwt(ApiUser(id, groups.map { group -> Groups.fromString(group) }))
+                val jwt = createJwt(ApiUser(id, groups.map { group -> Group.fromString(group) }))
                 call.respondRedirect("${Oidc.config.afterLoginRedirectUrl}?tosca_token=$jwt")
             }
         }
