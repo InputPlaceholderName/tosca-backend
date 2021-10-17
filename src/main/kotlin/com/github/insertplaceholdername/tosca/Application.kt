@@ -1,28 +1,32 @@
 package com.github.insertplaceholdername.tosca
 
-import com.github.insertplaceholdername.tosca.auth.CurrentUser
-import com.github.insertplaceholdername.tosca.auth.Group
+import com.github.insertplaceholdername.tosca.api.users
+import com.github.insertplaceholdername.tosca.api.workspaces
 import com.github.insertplaceholdername.tosca.auth.GroupAuthorization
 import com.github.insertplaceholdername.tosca.auth.JwtConfig
 import com.github.insertplaceholdername.tosca.auth.setupAuth
-import com.github.insertplaceholdername.tosca.auth.withAnyGroup
-import com.github.insertplaceholdername.tosca.auth.withGroup
+import com.github.insertplaceholdername.tosca.persistance.ExposedUserRepository
+import com.github.insertplaceholdername.tosca.persistance.ExposedWorkspaceRepository
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.Application
-import io.ktor.application.call
+import io.ktor.application.feature
 import io.ktor.application.install
 import io.ktor.auth.authenticate
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.config.tryGetString
 import io.ktor.features.CORS
+import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
-import io.ktor.response.respond
-import io.ktor.routing.get
+import io.ktor.routing.HttpMethodRouteSelector
+import io.ktor.routing.Route
+import io.ktor.routing.Routing
+import io.ktor.routing.route
 import io.ktor.routing.routing
+import io.ktor.serialization.json
 import io.sentry.Sentry
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -62,7 +66,9 @@ fun setupSentry(applicationConfig: Config) {
 }
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
-
+fun allRoutes(root: Route): List<Route> {
+    return listOf(root) + root.children.flatMap { allRoutes(it) }
+}
 fun Application.module(testing: Boolean = false) {
     val config = ConfigFactory.load() ?: throw Exception("Could not load config")
 
@@ -99,36 +105,23 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        authenticate("jwt") {
-            withAnyGroup(Group.Everyone, Group.Admin, Group.SuperUser) {
-                get("/secret") {
-                    val user = call.attributes[CurrentUser]
-                    call.respond("Welcome $user")
-                }
-            }
-
-            withGroup(Group.Everyone) {
-                get("/everyone") {
-                    val user = call.attributes[CurrentUser]
-                    call.respond("Welcome $user")
-                }
-            }
-
-            withGroup(Group.SuperUser) {
-                get("/superuser") {
-                    val user = call.attributes[CurrentUser]
-                    call.respond("Welcome $user")
-                }
-            }
-
-            withGroup(Group.Admin) {
-                get("/admin") {
-                    val user = call.attributes[CurrentUser]
-                    call.respond("Welcome $user")
-                }
-            }
-
-            users("jwt", ExposedUserRepository)
+        install(ContentNegotiation) {
+            json()
         }
+
+        authenticate("jwt") {
+            route("/v1/") {
+                users(ExposedUserRepository)
+                workspaces(ExposedUserRepository, ExposedWorkspaceRepository)
+            }
+        }
+    }
+
+    val root = feature(Routing)
+    val allRoutes = allRoutes(root)
+    val allRoutesWithMethod = allRoutes.filter { it.selector is HttpMethodRouteSelector }
+
+    allRoutesWithMethod.forEach {
+        println("route: $it")
     }
 }

@@ -1,6 +1,6 @@
 @startuml
 object User {
-    id = int 
+    id = int
     userName = string
     firstName = string
     lastName = string
@@ -9,8 +9,8 @@ object User {
 object Workspace {
     id = int
     name = string
-    information = string 
-    createdAt = DateTime
+    information = string
+    createdAt = Timestamp
     creator = int
 }
 
@@ -24,14 +24,14 @@ object UserWorkspace {
 object WaitingList {
     id = int
     workspace = int
-    title = string  
+    title = string
     information = string
 }
 
 object WaitingListSchedule {
     id = int
     waitingList = int
-    start = DateTime
+    start = Timestamp
     duration = int
 }
 
@@ -39,7 +39,7 @@ object UserWaitingListSchedule {
     id = int
     waitingListSchedule = int
     user = int
-    createdAt = DateTime
+    createdAt = Timestamp
     claimedBy = int
     message = string
     answer = string
@@ -48,6 +48,7 @@ object UserWaitingListSchedule {
 object Signup {
     id = int
     workspace = int
+    title = string
     information = string
     maxUserSignups = int
 }
@@ -86,4 +87,5 @@ Signup --> Workspace
 SignupSlot --> Signup
 
 UserSignupSlot --> SignupSlot
+UserSignupSlot --> User
 @enduml

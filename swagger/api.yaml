@@ -25,11 +25,13 @@ paths:
       tags:
         - auth
       description: Starts the OpenID Connect login process
+
   /authorization-code/callback:
     get:
       tags:
         - auth
       description: Callback endpoint for OpenID Connect login process
+
   /v1/workspaces:
     get:
       tags:
@@ -37,7 +39,7 @@ paths:
       operationId: getWorkspaces
       security:
         - bearerAuth: []
-      description: Gets all available workspaces for the current user
+      description: Gets all workspaces. Only available to a Super User.
       responses:
         200:
           description: success
@@ -53,7 +55,7 @@ paths:
       operationId: postWorkspace
       security:
         - bearerAuth: []
-      description: Creates a new workspace, requires the user to be at least Admin
+      description: Creates a new workspace, requires that the current user has the Admin or SuperUser group
       requestBody:
         content:
           application/json:
@@ -61,7 +63,8 @@ paths:
               properties:
                 name:
                   type: string
-                info:
+                  required: true
+                information:
                   type: string
       responses:
         200:
@@ -70,19 +73,97 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Workspace'
-  /v1/workspaces/{workspaceId}/queues:
-    get:
+
+  /v1/workspaces/{id}/users:
+    parameters:
+      - name: id
+        in: path
+        description: The workspace to add a user to
+        required: true
+        schema:
+          $ref: '#/components/schemas/ID'
+    post:
       tags:
-        - queues
         - workspaces
-      operationId: getQueues
+      operationId: addWorkspaceUser
       security:
         - bearerAuth: []
-      description: Gets all queues for a workspace
+      description: Adds a user to a workspace with a role
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user:
+                  $ref: '#/components/schemas/ID'
+                role:
+                  $ref: '#/components/schemas/Role'
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/FullWorkspaceUser'
+
+  /v1/workspaces{workspace_id}/users/{id}:
+    parameters:
+      - name: workspace_id
+        in: path
+        description: The workspace
+        required: true
+        schema:
+          $ref: '#/components/schemas/ID'
+      - name: id
+        in: path
+        description: The user to add/modify/delete
+        required: true
+        schema:
+          $ref: '#/components/schemas/ID'
+    put:
+      tags:
+        - workspaces
+      operationId: modifyWorkspaceUser
+      security:
+        - bearerAuth: []
+      description: Modify a users role for a workspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                role:
+                  $ref: '#/components/schemas/Role'
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullWorkspaceUser'
+    delete:
+      tags:
+        - workspaces
+      operationId: deleteWorkspaceUser
+      security:
+        - bearerAuth: []
+      description: Delete a users role for a workspace
+      responses:
+        204:
+          description: success
+
+  /v1/workspaces/{id}:
+    get:
+      tags:
+        - workspaces
+      operationId: getWorkspace
+      security:
+        - bearerAuth: []
+      description: Gets a single workspace. The user has to be a Super User or a member of the workspace.
       parameters:
-        - name: workspaceId
+        - name: id
           in: path
-          description: Workspace ID
+          description: ID of the workspace
           required: true
           schema:
             $ref: '#/components/schemas/ID'
@@ -94,16 +175,157 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Queue'
+                  $ref: '#/components/schemas/FullWorkspace'
+    patch:
+      tags:
+        - workspaces
+      operationId: patchWorkspace
+      security:
+        - bearerAuth: []
+      description: Updates name, information and creator for a Workspace. Requires the user to be either SuperUser or the creator of the workspace.
+      parameters:
+        - name: id
+          in: path
+          description: ID of the workspace
+          required: true
+          schema:
+            $ref: '#/components/schemas/ID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  required: true
+                information:
+                  type: string
+                creator:
+                  $ref: '#/components/schemas/ID'
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullWorkspace'
+    delete:
+      tags:
+        - workspaces
+      operationId: deleteWorkspace
+      security:
+        - bearerAuth: []
+      description: Deletes a workspace. Only available to the creator of the workspace and SuperUsers
+      parameters:
+        - name: id
+          in: path
+          description: ID of the workspace
+          required: true
+          schema:
+            $ref: '#/components/schemas/ID'
+      responses:
+        204:
+          description: success
+        401:
+          description: Missing permissions
+
+  /v1/user:
+    get:
+      tags:
+        - user
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      description: Gets the current logged in user
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithGroups'
+
+  /v1/users:
+    get:
+      tags:
+        - user
+      operationId: getAllUsers
+      security:
+        - bearerAuth: []
+      description: Gets all users. Must be Super User to call.
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        403:
+          description: Missing permissions (group Super User)
+
+  /v1/users/{id}:
+    get:
+      tags:
+        - user
+      operationId: getUser
+      security:
+        - bearerAuth: []
+      description: Gets a specific user
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            $ref: '#/components/schemas/ID'
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullUser'
+
+  /v1/users/{id}/workspaces:
+    get:
+      tags:
+        - user
+        - workspaces
+      operationId: getUserWorkspaces
+      security:
+        - bearerAuth: []
+      description: Gets workspaces for a specific user. Non Super Users can only request their own users workspaces.
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            $ref: '#/components/schemas/ID'
+
+      responses:
+        200:
+          description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FullUserWorkspace'
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
+
   schemas:
     ID:
       type: integer
       format: int32
+
     Workspace:
       type: object
       required:
@@ -116,55 +338,112 @@ components:
           $ref: '#/components/schemas/ID'
         name:
           type: string
-        info:
+        information:
           type: string
         creator:
           $ref: '#/components/schemas/User'
-        moderators:
-          $ref: '#/components/schemas/UserArray'
-        whitelist:
-          $ref: '#/components/schemas/UserArray'
-        queues:
-          $ref: '#/components/schemas/QueueArray'
+
+    FullWorkspace:
+      allOf:
+        - $ref: '#/components/schemas/Workspace'
+        - type: object
+          properties:
+            waitingLists:
+              type: array
+              items:
+                $ref: '#/components/schemas/WaitingList'
+            signups:
+              type: array
+              items:
+                $ref: '#/components/schemas/Signup'
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/FullWorkspaceUser'
+
+    UserWithGroups:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            groups:
+              $ref: '#/components/schemas/Groups'
+
+    Groups:
+      type: array
+      items:
+        type: string
+        enum:
+          - SuperUser
+          - Admin
+          - Everyone
+
+    Role:
+      type: string
+      enum:
+        - Admin
+        - Normal
+
     User:
       type: object
       properties:
-        user_id:
-          type: string
-        first_name:
-          type: string
-        last_name:
-          type: string
-    UserArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/User'
-    Queue:
-      type: object
-      properties:
         id:
           $ref: '#/components/schemas/ID'
-        name:
+        userId:
           type: string
-        info:
+        firstName:
           type: string
-    QueueArray:
-      type: array
-      items:
-        $ref: '#/components/schemas/Queue'
-    QueueWithSlots:
-      type: object
+        lastName:
+          type: string
+
+    FullUser:
       allOf:
-        - $ref: '#/components/schemas/Queue'
-        - type: object
+        - $ref: '#/components/schemas/User'
+        - object:
           properties:
-            queue_slots:
+            workspaces:
               type: array
               items:
-                $ref: '#/components/schemas/QueueSlot'
-    QueueSlot:
+                $ref: '#/components/schemas/FullUserWorkspace'
+
+    FullUserWorkspace:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        workspace:
+          $ref: '#/components/schemas/Workspace'
+
+    FullWorkspaceUser:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/Role'
+        user:
+          $ref: '#/components/schemas/User'
+
+    WaitingList:
       type: object
       properties:
         id:
           $ref: '#/components/schemas/ID'
-      
+        workspace:
+          $ref: '#/components/schemas/ID'
+        title:
+          type: string
+        information:
+          type: string
+
+    Signup:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/ID'
+        workspace:
+          $ref: '#/components/schemas/ID'
+        title:
+          type: string
+        information:
+          type: string
+        maxUserSignups:
+          type: integer

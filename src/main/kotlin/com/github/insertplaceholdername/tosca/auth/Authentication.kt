@@ -2,7 +2,7 @@ package com.github.insertplaceholdername.tosca.auth
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.github.insertplaceholdername.tosca.UserRepository
+import com.github.insertplaceholdername.tosca.persistance.UserRepository
 import com.okta.jwt.AccessTokenVerifier
 import com.okta.jwt.IdTokenVerifier
 import com.okta.jwt.JwtVerifiers
@@ -93,11 +93,11 @@ fun Application.setupAuth(userRepository: UserRepository) {
                 val firstName = idToken.claims["firstName"] ?: throw Exception("id_token did not contain firstName")
                 val lastName = idToken.claims["lastName"] ?: throw Exception("id_token did not contain firstName")
                 val groups = idToken.claims["groups"] as List<String>
-                val id = idToken.claims["id"] ?: throw Exception("id_token did not contain id")
+                val userId = idToken.claims["id"] ?: throw Exception("id_token did not contain id")
 
-                userRepository.storeUser(id as String, firstName as String, lastName as String)
+                val id = userRepository.storeUser(userId as String, firstName as String, lastName as String).id
 
-                val jwt = createJwt(ApiUser(id, groups.map { group -> Group.fromString(group) }))
+                val jwt = createJwt(ApiUser(id, userId, groups.map { group -> Group.fromString(group) }))
                 call.respondRedirect("${Oidc.config.afterLoginRedirectUrl}?tosca_token=$jwt")
             }
         }

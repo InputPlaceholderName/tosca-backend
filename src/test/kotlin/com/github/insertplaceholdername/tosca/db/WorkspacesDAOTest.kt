@@ -36,11 +36,39 @@ internal class WorkspacesDAOTest {
             WorkspaceDAO.new {
                 creator = user
                 name = "Workspace1"
-                info = "Info"
+                information = "Info"
             }
         }
 
         val workspaces = transaction { WorkspaceDAO.all().toList() }
         assertEquals(1, workspaces.size)
+    }
+
+    @Test
+    fun getWorkspaces() {
+        transaction {
+            val user = UserDAO.new {
+                userId = "Test"
+                firstName = "Adam"
+                lastName = "Svensson"
+            }
+
+            WorkspaceDAO.new {
+                creator = user
+                name = "Workspace1"
+                information = "Info"
+            }
+
+            WorkspaceDAO.new {
+                creator = user
+                name = "Workspace2"
+                information = "Info"
+            }
+        }
+
+        val workspaces = transaction { WorkspaceDAO.all().toList() }
+        assertEquals(2, workspaces.size)
+        assertEquals("Workspace1", workspaces[0].name)
+        assertEquals("Workspace2", workspaces[1].name)
     }
 }

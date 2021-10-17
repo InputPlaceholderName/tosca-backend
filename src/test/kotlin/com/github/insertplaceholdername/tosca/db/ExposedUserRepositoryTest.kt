@@ -1,6 +1,7 @@
 package com.github.insertplaceholdername.tosca.db
 
-import com.github.insertplaceholdername.tosca.ExposedUserRepository
+import com.github.insertplaceholdername.tosca.persistance.ExposedUserRepository
+import com.github.insertplaceholdername.tosca.persistance.ExposedWorkspaceRepository
 import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.ClassRule
@@ -50,7 +51,7 @@ internal class ExposedUserRepositoryTest {
     @Test
     fun getUserById() {
         val id = ExposedUserRepository.storeUser("id1", "f1", "l1").id
-        val user = ExposedUserRepository.getUser(id)
+        val user = ExposedUserRepository.getUser(id) ?: throw Error("Fail")
         assertEquals("id1", user.userId)
         assertEquals("f1", user.firstName)
         assertEquals("l1", user.lastName)
@@ -59,9 +60,21 @@ internal class ExposedUserRepositoryTest {
     @Test
     fun getUserByUserId() {
         ExposedUserRepository.storeUser("id1", "f1", "l1")
-        val user = ExposedUserRepository.getUser("id1")
+        val user = ExposedUserRepository.getUser("id1") ?: throw Error("Fail")
         assertEquals("id1", user.userId)
         assertEquals("f1", user.firstName)
         assertEquals("l1", user.lastName)
+    }
+
+    @Test
+    fun getUserWorkspaces() {
+        val user = ExposedUserRepository.storeUser("id1", "f1", "l1")
+        val wspace = ExposedWorkspaceRepository.storeWorkspace("w1", "Info")
+        ExposedWorkspaceRepository.addUser(wspace.id, user.id, Role.Admin)
+
+        val fullUser = ExposedUserRepository.getUser(user.id) ?: error("Could not find user")
+        assertEquals(1, fullUser.workspaces.size)
+        assertEquals(Role.Admin, fullUser.workspaces[0].role)
+        assertEquals(wspace.id, fullUser.workspaces[0].workspace.id)
     }
 }

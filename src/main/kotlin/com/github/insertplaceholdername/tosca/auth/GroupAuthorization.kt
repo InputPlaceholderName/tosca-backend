@@ -7,6 +7,7 @@ import io.ktor.application.feature
 import io.ktor.auth.Authentication
 import io.ktor.auth.Principal
 import io.ktor.auth.authentication
+import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
 import io.ktor.routing.Route
@@ -19,7 +20,10 @@ import io.ktor.util.pipeline.PipelinePhase
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ApiUser(val userId: String, val groups: List<Group>)
+data class ApiUser(val id: Int, val userId: String, val groups: List<Group>) {
+    fun hasGroup(group: Group): Boolean = groups.contains(group)
+    fun notHasGroup(group: Group): Boolean = !hasGroup(group)
+}
 
 class AuthorizationException(override val message: String, val code: HttpStatusCode) : Exception(message)
 

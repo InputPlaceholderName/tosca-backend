@@ -31,6 +31,10 @@ object PostgresContainer : ExternalResource() {
     }
 
     fun clear() {
-        transaction { UserDAO.table.deleteAll() }
+        transaction {
+            UserDAO.table.deleteAll()
+            WorkspaceDAO.table.deleteAll()
+            UserWorkspaceDAO.table.deleteAll()
+        }
     }
 }
